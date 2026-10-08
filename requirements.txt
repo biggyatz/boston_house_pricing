@@ -1,8 +1,7 @@
-Flask
-scikit-learn
-pandas
-numpy
-matplotlib
-seaborn
-gunicorn
-
+# Runtime dependencies. scikit-learn is pinned to the version the pickled
+# model and scaler were saved with, so they load without warnings or errors.
+Flask==3.0.3
+gunicorn==22.0.0
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2

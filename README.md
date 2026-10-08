@@ -1,41 +1,70 @@
-# boston_house_pricing
+# Boston House Pricing
 
-### Software and tool requirements
-1. [github]
-2. [vscodeIDE]
-3. [herokuaccount]
-4. [GitCLI]
+A linear-regression model that predicts the median value of a Boston home
+from 13 neighbourhood features, served as a Flask web app with a JSON API.
 
-create a new environment for the project
+| Metric (test set) | Value |
+| --- | --- |
+| R² | 0.711 |
+| Adjusted R² | 0.684 |
+| MAE | 3.16 ($k) |
+| RMSE | 4.64 ($k) |
 
+## Features the model expects
+
+`CRIM` crime rate · `ZN` residential land zoned for large lots · `INDUS`
+non-retail business acres · `CHAS` borders Charles River (1/0) · `NOX` nitric
+oxide concentration · `RM` average rooms · `AGE` pre-1940 homes (%) · `DIS`
+distance to employment centres · `RAD` highway access index · `TAX` property
+tax rate · `PTRATIO` pupil–teacher ratio · `B` demographic index · `LSTAT`
+lower-status population (%).
+
+## Project layout
+
+| Path | What it is |
+| --- | --- |
+| `app.py` | Flask app: web form (`/`, `/predict`), JSON API (`/predict_api`), health check (`/health`) |
+| `regmodel.pkl`, `scaling.pkl` | Trained `LinearRegression` and `StandardScaler` (scikit-learn 1.4.2) |
+| `linear regression.ipynb` | EDA, training and evaluation |
+| `templates/home.html` | Input form |
+| `Dockerfile`, `render.yaml`, `Procfile` | Deployment config |
+
+## Run locally
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python app.py                         # http://localhost:5000
 ```
 
-conda create -p venv python==3.9.6 -y
+Or with Docker:
 
+```bash
+docker build -t boston-house-pricing .
+docker run -p 8000:8000 boston-house-pricing   # http://localhost:8000
 ```
-or you can select the venv manually in your vs code environment 
 
-### Install all the package dependencies with the following command
+### API
+
+```bash
+curl -X POST http://localhost:5000/predict_api -H 'Content-Type: application/json' -d '{
+  "data": {"CRIM": 0.00632, "ZN": 18, "INDUS": 2.31, "CHAS": 0, "NOX": 0.538, "RM": 6.575,
+           "Age": 65.2, "DIS": 4.09, "RAD": 1, "TAX": 296, "PTRATIO": 15.3, "B": 396.9, "LSTAT": 4.98}
+}'
+# 30.086...  (price in $1000s)
 ```
-pip install -r requiremtns.txt
-```
-### Then you check for the ML model file and store the model through pickle into reg model.pkl also you need standardization.pkl 
-### Then the app.py file containing the front end of the project is ready to deploy the implemented model 
 
+To retrain, install `requirements-dev.txt` and run the notebook.
 
-### Deployment part
-### These are the things that need to be done on initialization of a cloud-deployed server
-### We use gunicorn pure python HTTP server to run pythons WSGI (Web Server Gateway Interface) applications concurrently using multiple processes
-### so a process file (proc file) is created to perform this process 
+## Deploy
 
-```
-web: gunicorn app:app
-```
-### here
-### gunicorn--> creates multiple Python process and distributes the requests into multiple instances as well 
-### app:app--> calls the flask application named app and our python file app.py
+This app was originally on Heroku, whose free tier ended in November 2022.
+It now deploys on **Render's free plan** via the included `render.yaml`:
 
+1. Sign in at <https://dashboard.render.com> with GitHub.
+2. **New → Blueprint** → select this repository → **Apply**.
+3. Render builds the Dockerfile and gives you a `https://boston-house-pricing-xxxx.onrender.com` URL.
 
-### To run the entire app with the help of docker actions you need to have a paid version of the heroku and have 3 secret keys 
-```heroku_api_key,heroku_email,heroku_name ```
-### Then we put it into the secret key section and while performing the GitHub actions will execute the whole main.yaml which successively runs the docker containers with all the images and gunicorn for the processes into the web 
+Free Render services sleep after 15 minutes idle; the first request after that
+takes ~30–60 s. The same Dockerfile runs unchanged on Railway, Fly.io, Google
+Cloud Run or Hugging Face Spaces (Docker SDK, port 8000 → set `PORT=7860`).

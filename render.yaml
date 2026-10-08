@@ -1,0 +1,7 @@
+# One-click deploy on Render: Dashboard -> New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: boston-house-pricing
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
