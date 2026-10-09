@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nepal Property Price Estimator</title>
+<meta name="description" content="Estimate the asking price of a house or land in Nepal from real listings: Kathmandu, Lalitpur, Bhaktapur and beyond.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Real estate · Nepal</p>
+    <h1>What is this property worth?</h1>
+    <p class="lead">Estimate the asking price of a house or plot of land in Nepal from <span id="lead-n">thousands of</span> real listings, see the likely range, and compare against similar properties on the market.</p>
+    <div class="kpis" id="kpis"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+    <section class="card" aria-labelledby="in-title">
+      <h2 id="in-title">Property details</h2>
+      <p class="sub">The estimate updates as you type.</p>
+      <div class="field"><span>Property type</span><div class="seg" id="type" role="radiogroup" aria-label="Property type"></div></div>
+      <div class="field"><span>District</span><div class="seg" id="district" role="radiogroup" aria-label="District"></div></div>
+      <label class="field"><span>Area / locality</span><select id="locality"></select></label>
+      <div class="field">
+        <span>Land area</span>
+        <div class="area-inputs" id="area-rapd">
+          <label>Ropani<input type="number" min="0" step="1" id="a-r" value="0"></label>
+          <label>Aana<input type="number" min="0" step="1" id="a-a" value="4"></label>
+          <label>Paisa<input type="number" min="0" max="3" step="1" id="a-p" value="0"></label>
+          <label>Dam<input type="number" min="0" max="3" step="1" id="a-d" value="0"></label>
+        </div>
+        <div class="area-inputs" id="area-bkd" hidden>
+          <label>Bigha<input type="number" min="0" step="1" id="b-b" value="0"></label>
+          <label>Kattha<input type="number" min="0" step="1" id="b-k" value="0"></label>
+          <label>Dhur<input type="number" min="0" step="1" id="b-d" value="12"></label>
+        </div>
+        <div class="hint" id="area-hint"></div>
+      </div>
+      <div class="field"><span id="road-l">Road access</span><div class="range-row"><input type="range" min="6" max="30" step="1" value="13" id="road" aria-labelledby="road-l"><output id="road-o">13 ft</output></div></div>
+      <div class="field" id="storey-field"><span id="st-l">Storeys</span><div class="range-row"><input type="range" min="1" max="5" step="0.5" value="2.5" id="storeys" aria-labelledby="st-l"><output id="st-o">2.5</output></div></div>
+    </section>
+
+    <section class="card" aria-labelledby="out-title">
+      <h2 id="out-title">Estimated asking price</h2>
+      <div class="hero" aria-live="polite"><span class="big" id="price">–</span></div>
+      <div class="meta" id="meta"></div>
+      <div class="chart" id="range-chart"></div>
+      <h3 style="margin:22px 0 0;font-size:1rem">Similar listings</h3>
+      <p class="sub" id="comps-sub">Closest matches by place, type and size.</p>
+      <div class="comps" id="comps"></div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="mkt-title">
+    <div class="card-head">
+      <div>
+        <h2 id="mkt-title">Price per aana by area</h2>
+        <p class="sub" id="mkt-sub">Median asking price per aana, with houses and land shown separately. Areas with at least 4 listings.</p>
+      </div>
+      <button class="ghost" data-table-toggle="mkt">Show table</button>
+    </div>
+    <div class="controls"><div class="chips" id="mkt-type" role="radiogroup" aria-label="Property type"></div></div>
+    <div class="chart" id="mkt-chart"></div>
+    <div class="table-view" id="mkt-table" hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="about-title">
+    <h2 id="about-title">How this works</h2>
+    <p class="sub" id="about-text"></p>
+    <div class="stats-row" id="model-stats"></div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p id="sources"></p>
+  <p>Estimates are based on <strong>asking prices</strong>, which are usually above final sale prices, and are not a valuation. <a href="https://github.com/biggyatz/nepal-property-price-estimator">Source, data pipeline and methodology on GitHub</a></p>
+</footer>
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+<script src="predict.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
