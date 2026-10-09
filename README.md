@@ -1,6 +1,6 @@
 # Nepal Property Price Estimator
 
-**Live app:** <https://biggyatz.github.io/boston_house_pricing/>
+**Live app:** <https://biggyatz.github.io/nepal-property-price-estimator/>
 
 Estimate the asking price of a house or plot of land anywhere in Nepal (Kathmandu, Lalitpur, Bhaktapur, Pokhara, Chitwan, the Terai and more) from **1,923 real listings**. Enter the type, district, locality, land area (ropani-aana-paisa-dam, or bigha-kattha-dhur in the Terai), road width and storeys. You get an estimate with a likely range, the price per aana, the most similar listings on the market (linked to their source), and a ranking of areas by price per aana.
 
