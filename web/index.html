@@ -3,88 +3,84 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Boston House Pricing</title>
-<meta name="description" content="Predict Boston home values with a linear-regression model, running entirely in your browser.">
-<style>
-  :root { --bg:#f6f7f9; --card:#fff; --text:#1d2330; --muted:#5b6475; --accent:#1f6feb; --line:#dfe3ea; --ok:#e7f3ec; --okText:#155c33; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#12141a; --card:#1b1f27; --text:#e8eaf0; --muted:#a3abbb; --accent:#6ea8ff; --line:#2a303b; --ok:#16301f; --okText:#8fe0ad; } }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
-  main { max-width:880px; margin:0 auto; padding:40px 16px 56px; }
-  h1 { margin:0 0 6px; font-size:clamp(1.7rem,4vw,2.2rem); }
-  .lead { color:var(--muted); margin:0 0 24px; }
-  form { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
-  .grid { display:grid; gap:14px 18px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
-  label { display:block; font-weight:600; font-size:.92rem; }
-  label small { display:block; font-weight:400; color:var(--muted); font-size:.82rem; margin-bottom:4px; }
-  input { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit; font:inherit; }
-  input:focus { outline:2px solid var(--accent); outline-offset:1px; }
-  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
-  button { padding:10px 18px; border-radius:8px; border:1px solid var(--accent); font:inherit; font-weight:600; cursor:pointer; }
-  button.primary { background:var(--accent); color:#fff; }
-  button.secondary { background:transparent; color:var(--accent); }
-  #result { margin-top:18px; padding:14px 16px; border-radius:10px; background:var(--ok); color:var(--okText); font-size:1.15rem; font-weight:600; }
-  #result[hidden] { display:none; }
-  footer { margin-top:28px; color:var(--muted); font-size:.9rem; }
-  footer a { color:var(--accent); }
-</style>
+<title>Nepal Property Price Estimator</title>
+<meta name="description" content="Estimate the asking price of a house or land in Nepal from real listings: Kathmandu, Lalitpur, Bhaktapur and beyond.">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main>
-  <h1>Boston House Pricing</h1>
-  <p class="lead">Linear-regression model (test R² 0.71, RMSE ≈ $4.6k) predicting the median value of an owner-occupied home from 13 neighbourhood features. The model runs entirely in your browser.</p>
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Real estate · Nepal</p>
+    <h1>What is this property worth?</h1>
+    <p class="lead">Estimate the asking price of a house or plot of land in Nepal from <span id="lead-n">thousands of</span> real listings, see the likely range, and compare against similar properties on the market.</p>
+    <div class="kpis" id="kpis"></div>
+  </div>
+</header>
 
-  <form id="form" novalidate>
-    <div class="grid" id="fields"></div>
-    <div class="actions">
-      <button type="submit" class="primary">Predict price</button>
-      <button type="button" class="secondary" id="example">Fill example</button>
+<main class="wrap">
+  <div class="layout">
+    <section class="card" aria-labelledby="in-title">
+      <h2 id="in-title">Property details</h2>
+      <p class="sub">The estimate updates as you type.</p>
+      <div class="field"><span>Property type</span><div class="seg" id="type" role="radiogroup" aria-label="Property type"></div></div>
+      <div class="field"><span>District</span><div class="seg" id="district" role="radiogroup" aria-label="District"></div></div>
+      <label class="field"><span>Area / locality</span><select id="locality"></select></label>
+      <div class="field">
+        <span>Land area</span>
+        <div class="area-inputs" id="area-rapd">
+          <label>Ropani<input type="number" min="0" step="1" id="a-r" value="0"></label>
+          <label>Aana<input type="number" min="0" step="1" id="a-a" value="4"></label>
+          <label>Paisa<input type="number" min="0" max="3" step="1" id="a-p" value="0"></label>
+          <label>Dam<input type="number" min="0" max="3" step="1" id="a-d" value="0"></label>
+        </div>
+        <div class="area-inputs" id="area-bkd" hidden>
+          <label>Bigha<input type="number" min="0" step="1" id="b-b" value="0"></label>
+          <label>Kattha<input type="number" min="0" step="1" id="b-k" value="0"></label>
+          <label>Dhur<input type="number" min="0" step="1" id="b-d" value="12"></label>
+        </div>
+        <div class="hint" id="area-hint"></div>
+      </div>
+      <div class="field"><span id="road-l">Road access</span><div class="range-row"><input type="range" min="6" max="30" step="1" value="13" id="road" aria-labelledby="road-l"><output id="road-o">13 ft</output></div></div>
+      <div class="field" id="storey-field"><span id="st-l">Storeys</span><div class="range-row"><input type="range" min="1" max="5" step="0.5" value="2.5" id="storeys" aria-labelledby="st-l"><output id="st-o">2.5</output></div></div>
+    </section>
+
+    <section class="card" aria-labelledby="out-title">
+      <h2 id="out-title">Estimated asking price</h2>
+      <div class="hero" aria-live="polite"><span class="big" id="price">–</span></div>
+      <div class="meta" id="meta"></div>
+      <div class="chart" id="range-chart"></div>
+      <h3 style="margin:22px 0 0;font-size:1rem">Similar listings</h3>
+      <p class="sub" id="comps-sub">Closest matches by place, type and size.</p>
+      <div class="comps" id="comps"></div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="mkt-title">
+    <div class="card-head">
+      <div>
+        <h2 id="mkt-title">Price per aana by area</h2>
+        <p class="sub" id="mkt-sub">Median asking price per aana, with houses and land shown separately. Areas with at least 4 listings.</p>
+      </div>
+      <button class="ghost" data-table-toggle="mkt">Show table</button>
     </div>
-    <div id="result" role="status" aria-live="polite" hidden></div>
-  </form>
+    <div class="controls"><div class="chips" id="mkt-type" role="radiogroup" aria-label="Property type"></div></div>
+    <div class="chart" id="mkt-chart"></div>
+    <div class="table-view" id="mkt-table" hidden></div>
+  </section>
 
-  <footer>Source and training notebook: <a href="https://github.com/biggyatz/boston_house_pricing">github.com/biggyatz/boston_house_pricing</a></footer>
+  <section class="card" aria-labelledby="about-title">
+    <h2 id="about-title">How this works</h2>
+    <p class="sub" id="about-text"></p>
+    <div class="stats-row" id="model-stats"></div>
+  </section>
 </main>
-<script src="predict.js"></script>
-<script>
-  const FIELDS = [
-    ["CRIM", "Crime rate", "Per-capita crime rate by town", 0.00632],
-    ["ZN", "Large-lot zoning", "% residential land zoned for lots over 25,000 sq ft", 18],
-    ["INDUS", "Industry", "% non-retail business acres per town", 2.31],
-    ["CHAS", "Charles River", "1 if the tract bounds the river, else 0", 0],
-    ["NOX", "Air pollution", "Nitric-oxide concentration (parts per 10 million)", 0.538],
-    ["RM", "Rooms", "Average number of rooms per dwelling", 6.575],
-    ["AGE", "Older homes", "% owner-occupied units built before 1940", 65.2],
-    ["DIS", "Distance to jobs", "Weighted distance to five employment centres", 4.09],
-    ["RAD", "Highway access", "Index of accessibility to radial highways", 1],
-    ["TAX", "Property tax", "Full-value property-tax rate per $10,000", 296],
-    ["PTRATIO", "Pupil–teacher ratio", "Pupil–teacher ratio by town", 15.3],
-    ["B", "B", "1000(Bk − 0.63)², the dataset's demographic index", 396.9],
-    ["LSTAT", "Lower-status population", "% lower-status population", 4.98],
-  ];
-  const fields = document.getElementById("fields");
-  for (const [id, name, help] of FIELDS) {
-    fields.insertAdjacentHTML("beforeend",
-      `<label for="${id}">${name} <small>${help}</small><input id="${id}" type="number" step="any" required></label>`);
-  }
-  document.getElementById("example").onclick = () => {
-    for (const [id, , , example] of FIELDS) document.getElementById(id).value = example;
-  };
 
-  const modelReady = fetch("model.json").then(r => r.json());
-  const result = document.getElementById("result");
-  document.getElementById("form").onsubmit = async (e) => {
-    e.preventDefault();
-    const model = await modelReady;
-    const values = model.features.map(f => parseFloat(document.getElementById(f).value));
-    result.hidden = false;
-    if (values.some(v => !Number.isFinite(v))) {
-      result.textContent = "Please enter a number in every field.";
-      return;
-    }
-    const price = predictPrice(model, values) * 1000;
-    result.textContent = "Predicted house price: $" + Math.round(price).toLocaleString("en-US");
-  };
-</script>
+<footer class="wrap foot">
+  <p id="sources"></p>
+  <p>Estimates are based on <strong>asking prices</strong>, which are usually above final sale prices, and are not a valuation. <a href="https://github.com/biggyatz/boston_house_pricing">Source, data pipeline and methodology on GitHub</a></p>
+</footer>
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+<script src="predict.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
