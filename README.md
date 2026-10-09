@@ -1,5 +1,7 @@
 # Boston House Pricing
 
+**Live demo:** <https://biggyatz.github.io/boston_house_pricing/> (runs entirely in the browser, hosted on GitHub Pages)
+
 A linear-regression model that predicts the median value of a Boston home
 from 13 neighbourhood features, served as a Flask web app with a JSON API.
 
@@ -27,6 +29,7 @@ lower-status population (%).
 | `regmodel.pkl`, `scaling.pkl` | Trained `LinearRegression` and `StandardScaler` (scikit-learn 1.4.2) |
 | `linear regression.ipynb` | EDA, training and evaluation |
 | `templates/home.html` | Input form |
+| `web/`, `export_web_model.py` | Static in-browser version published to GitHub Pages |
 | `Dockerfile`, `render.yaml`, `Procfile` | Deployment config |
 
 ## Run locally
@@ -58,13 +61,17 @@ To retrain, install `requirements-dev.txt` and run the notebook.
 
 ## Deploy
 
-This app was originally on Heroku, whose free tier ended in November 2022.
-It now deploys on **Render's free plan** via the included `render.yaml`:
+### GitHub Pages (live)
 
-1. Sign in at <https://dashboard.render.com> with GitHub.
-2. **New → Blueprint** → select this repository → **Apply**.
-3. Render builds the Dockerfile and gives you a `https://boston-house-pricing-xxxx.onrender.com` URL.
+`web/` is a static version of the app for GitHub Pages. `export_web_model.py` writes the scaler means and scales and the regression coefficients to `web/model.json`, and `web/predict.js` applies the same formula in the browser. It matches the Python model to within 1e-13 on 500 random inputs.
 
-Free Render services sleep after 15 minutes idle; the first request after that
-takes ~30–60 s. The same Dockerfile runs unchanged on Railway, Fly.io, Google
-Cloud Run or Hugging Face Spaces (Docker SDK, port 8000 → set `PORT=7860`).
+`.github/workflows/pages.yml` copies `web/` to the `gh-pages` branch on every
+push to `main`, and GitHub Pages serves it at <https://biggyatz.github.io/boston_house_pricing/>. If you retrain and
+replace `regmodel.pkl` or `scaling.pkl`, run `python export_web_model.py` and commit the new
+`web/model.json`.
+
+### Flask server (optional)
+
+The Flask app (`Dockerfile`, `render.yaml`) is still here for running the
+original server version, for example on Render: **New → Blueprint →** pick
+this repo **→ Apply**.
