@@ -1,0 +1,5 @@
+# Extra packages for re-running the training notebook.
+-r requirements.txt
+matplotlib==3.8.4
+seaborn==0.13.2
+jupyter
